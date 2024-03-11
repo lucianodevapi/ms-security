@@ -1,0 +1,26 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: ms-security
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ms-security
+    password: postgres
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+security:
+  jwt:
+    expiration-in-minutes: 30
+    secret-key: bWkgY2xhdmUgZXMgbXV5IHNlZ3VyYSAxMjM0NTY3OCBhYmNkZWZn
