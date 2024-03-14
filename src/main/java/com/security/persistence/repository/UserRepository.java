@@ -1,6 +1,6 @@
 package com.security.persistence.repository;
 
-import com.security.persistence.entity.User;
+import com.security.persistence.entity.security.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

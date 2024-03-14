@@ -1,7 +1,9 @@
 package com.security.config.security.filter;
 
 import com.security.exceptions.ObjectNotFoundException;
-import com.security.persistence.entity.User;
+import com.security.persistence.entity.security.JwtToken;
+import com.security.persistence.entity.security.User;
+import com.security.persistence.repository.JwtTokenRepository;
 import com.security.service.UserService;
 import com.security.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
@@ -18,6 +20,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Optional;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -27,21 +32,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtTokenRepository jwtRepository;
+
     @Override
     protected void doFilterInternal(
             @NonNull  HttpServletRequest request,
             @NonNull  HttpServletResponse response,
             @NonNull  FilterChain filterChain) throws ServletException, IOException {
 
-        String authorizationHeader = request.getHeader("Authorization");
-        if(!StringUtils.hasText(authorizationHeader) || !authorizationHeader.startsWith("Bearer ")){
+        String jwt = jwtService.extractJwtFromRequest(request);
+        if(jwt == null || !StringUtils.hasText(jwt)){
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authorizationHeader.split(" ")[1];
-        String username = jwtService.extractUsername(jwt);
+        Optional<JwtToken> token = jwtRepository.findByToken(jwt);
+        boolean isValid = validateToken(token);
 
+        if(!isValid){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String username = jwtService.extractUsername(jwt);
         User user = userService.findOneByUsername(username).orElseThrow(
                 ()-> new ObjectNotFoundException(String.format("User not found by name: %s", username))
         );
@@ -53,5 +67,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);
+    }
+
+    private boolean validateToken(Optional<JwtToken> optionalJwtToken) {
+
+        if(!optionalJwtToken.isPresent()){
+            System.out.println("Token no existe o no fue generado en nuestro sistema");
+            return false;
+        }
+
+        JwtToken token = optionalJwtToken.get();
+        Date now = new Date(System.currentTimeMillis());
+        boolean isValid = token.isValid() && token.getExpiration().after(now);
+
+        if(!isValid){
+            System.out.println("Token inválido");
+            updateTokenStatus(token);
+        }
+
+        return isValid;
+    }
+
+    private void updateTokenStatus(JwtToken token) {
+        token.setValid(false);
+        jwtRepository.save(token);
     }
 }

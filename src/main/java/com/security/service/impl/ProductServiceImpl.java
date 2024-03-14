@@ -10,6 +10,7 @@ import com.security.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
+    //@PreAuthorize("hasAuthorize('READ_ALL_PRODUCTS')")
     @Override
     public Page<Product> findAll(Pageable pageable) {
         return productRepository.findAll(pageable);

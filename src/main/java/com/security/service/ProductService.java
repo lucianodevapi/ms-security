@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 public interface ProductService {
-
+    //@PreAuthorize("hasAuthorize('READ_ALL_PRODUCTS')")
     Page<Product> findAll(Pageable pageable);
 
     Optional<Product> findById(Long productId);

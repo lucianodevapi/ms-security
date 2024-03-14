@@ -1,7 +1,7 @@
 package com.security.service;
 
 import com.security.dto.request.SaveUser;
-import com.security.persistence.entity.User;
+import com.security.persistence.entity.security.User;
 
 import java.util.Optional;
 

@@ -18,9 +18,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: true
+#    show-sql: true
 
 security:
   jwt:
     expiration-in-minutes: 30
     secret-key: bWkgY2xhdmUgZXMgbXV5IHNlZ3VyYSAxMjM0NTY3OCBhYmNkZWZn
+  default:
+    role: CUSTOMER
